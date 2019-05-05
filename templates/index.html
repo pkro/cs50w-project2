@@ -2,11 +2,44 @@
 
 {% block content %}
 
-<div id="head"></div>
-<div id="rooms"></div>
-<div id="messages"></div>
-<div id="users"></div>
-<div id="userinput"></div>
+<div class="wrapper">
+    <div id="menubar">
+        <div id="apptitle">Chat thing</div>
+        <!--- toggle roomlist display -->
+        <div id="showrooms">Rooms</div>
+        <!--- toggle userlist display -->
+        <div id="users">Users</div>
+        <div id="users">logout</div>
+    </div>
+
+    <div id="rooms">
+        <button id="addroom">Add room</button>
+        <ul id="room_list">
+            <li>Room1</li>
+            <li>Room 2</li>
+            <li>Room long name</li>
+        </ul>
+    </div>
+    <div id="messages">
+        <ul id="messages_list">
+            <li>Hi</li>
+            <li>We gehts</li>
+            <li>Gut gut</li>
+            <li>Und dir</li>
+        </ul>
+    </div>
+    <div id="users">
+        <ul id="user_list">
+            <li>User1</li>
+            <li>Peer</li>
+            <li>NSA</li>
+        </ul>
+    </div>
+    <div id="userinput">
+        <input type="text" name="messageinput" id="messageinput">
+        <button id="messagesubmit">Submit</button>
+    </div>
+</div>
 
 {% endblock content %}
 

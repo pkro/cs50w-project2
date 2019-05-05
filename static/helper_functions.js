@@ -9,3 +9,7 @@ function qsa(selector) {
 function onPageLoad(func) {
     document.addEventListener('DOMContentLoaded', func);
 }
+
+function ce(tag) {
+    return document.createElement(tag);
+}
