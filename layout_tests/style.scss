@@ -1,0 +1,60 @@
+.wrapper {
+    grid-area: wrapper;
+    display: grid;
+    grid-template-columns: 20% 60% 20%;
+    grid-template-rows: 1fr 4fr 1fr;
+    grid-gap: 0.2em;
+
+    @media only screen and (max-width: 600px) {
+        grid-template-areas: 
+        "menubar    menubar     menubar"
+        "messages   messages    messages"
+        "userinput   userinput  userinput"
+    }
+    @media only screen and (min-width: 600px) {
+        grid-template-areas: 
+        "menubar    menubar     menubar"
+        "rooms      messages    users"
+        "rooms      userinput   userinput"
+    }
+}
+
+#logotext {
+    font-size:2em;
+}
+#menubar {
+    grid-area: menubar;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    background: #D79922;
+    color:#F13C20;
+    font-weight: bold;
+    font-size:1.2em;
+}
+
+#rooms {
+    grid-area: rooms;
+    background: #C5CBE3;
+}
+
+#messages {
+    grid-area: messages;
+    background: #EFE2BA;
+    color:black;
+}
+
+#users {
+    grid-area: users;
+    background: #C5CBE3;
+}
+
+#userinput {
+    grid-area: userinput;
+    display: grid;
+    background: white;
+    
+    grid-template-columns: 8fr 1fr 1fr;
+}
+#messagetext {
+    
+}
