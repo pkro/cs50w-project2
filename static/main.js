@@ -2,16 +2,19 @@ onPageLoad(
     () => {
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/socket');
 
-        displayName = localStorage.getItem('displayName');
+        display_name = localStorage.getItem('display_name');
 
-        if( ! displayName) {
-            let login_div = ce('div');
-            let login_text = ce('h1');
-            login_text.innerHTML = 'Please select a display name'
-            displayName_form = ce('input');
-            login_div.appendChild(login_text);
-            login_div.appendChild(displayName_form);
-            //document.body.appendChild(login_div)
+        if( ! display_name) {
+            if( ! qs('#display_name') ) {
+                document.location.replace('/login')
+            }
+        }
+        if(qs('#submit_dp')) {
+            qs('#submit_dp').onclick = () => {
+                // ToDo: query if username exists on backend
+                localStorage.setItem('display_name', qs('#display_name').value);
+                document.location.replace('/')
+            }
         }
     }
-)
+);

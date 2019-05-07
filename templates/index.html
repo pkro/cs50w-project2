@@ -1,45 +1,68 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-
 <div class="wrapper">
-    <div id="menubar">
-        <div id="apptitle">Chat thing</div>
-        <!--- toggle roomlist display -->
-        <div id="showrooms">Rooms</div>
-        <!--- toggle userlist display -->
-        <div id="users">Users</div>
-        <div id="users">logout</div>
+        <div id="menubar">
+            <div id="apptitle">
+                <div id="logotext">Chat thing</div>
+            </div>
+            <!--- toggle roomlist display -->
+            <div id="showrooms">Rooms</div>
+            <!--- toggle userlist display -->
+            <div id="usersmenu">Users</div>
+            <div id="logout">logout</div>
+        </div>
+    
+        <div id="rooms">
+            <button id="addroom">Add room</button>
+            <ul id="room_list">
+                <li>Room1</li>
+                <li>Room 2</li>
+                <li>Room long name</li>
+            </ul>
+        </div>
+        <div id="messages">
+            <ul id="messages_list">
+                <li>Hi</li>
+                <li>We gehts</li>
+                <li>Gut gut</li>
+                <li>Und dir</li>
+            </ul>
+        </div>
+        <div id="users">
+            <ul id="user_list">
+                <li>User1</li>
+                <li>Peer</li>
+                <li>NSA</li>
+            </ul>
+        </div>
+        <div id="userinput">
+            <div id="inputfield">
+                    <textarea class="form-control" name="userinput" id="userinput" rows="2"></textarea>
+            </div>
+            <div id="send">
+                <a name="button_send" id="" class="btn btn-primary" href="#" role="button"><i class="far fa-paper-plane"></i></a>
+            </div>
+            <div id="foto">
+                <a name="button_pic" id="" class="btn btn-primary" href="#" role="button"><i class="fas fa-image"></i></a>
+            </div>
+        </div>
+            
+        </div>
     </div>
-
-    <div id="rooms">
-        <button id="addroom">Add room</button>
-        <ul id="room_list">
-            <li>Room1</li>
-            <li>Room 2</li>
-            <li>Room long name</li>
-        </ul>
+<!---
+    <div id="displayname">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="displayname_input">Display name</label>
+                <input type="text" name="displayname_input" id="displayname_input" class="form-control" placeholder="" aria-describedby="helpId">
+                <small id="helpId" class="text-muted">Please enter a display name</small>
+            </div>
+            <button type="button" name="enter" id="enter" class="btn btn-primary" btn-lg btn-block">Enter</button>
+        </form>
     </div>
-    <div id="messages">
-        <ul id="messages_list">
-            <li>Hi</li>
-            <li>We gehts</li>
-            <li>Gut gut</li>
-            <li>Und dir</li>
-        </ul>
-    </div>
-    <div id="users">
-        <ul id="user_list">
-            <li>User1</li>
-            <li>Peer</li>
-            <li>NSA</li>
-        </ul>
-    </div>
-    <div id="userinput">
-        <input type="text" name="messageinput" id="messageinput">
-        <button id="messagesubmit">Submit</button>
-    </div>
+    -->
 </div>
-
+</body>
 {% endblock content %}
 

@@ -1,5 +1,7 @@
 import os
 import time
+from collections import defaultdict
+
 from flask import Flask
 from flask import render_template
 
@@ -13,23 +15,20 @@ socketio = SocketIO(app)
 rooms = set('lobby') 
 messages = []
 
-# better as class?
-message = {
-    'room': 'lobby',
-    'user': 'bot',
-    'message': 'Welcome to the lobby'
-}
+messages = defaultdict(list)
+messages['lobby'] = [('System', 'Welcome to the lobby')]
 
-messages.append(message)
+debug = os.getenv("FLASK_DEBUG") == "1"
+
+def cachebuster():
+    return time.time() if debug else "static"
+
 
 @app.route("/")
 def index():
-    if os.getenv("FLASK_DEBUG") == "1":
-        cachebuster = time.time()
-    else:
-        cachebuster = "static"
+    
 
-    return render_template('index.html', cachebuster=cachebuster)
+    return render_template('index.html', cachebuster=cachebuster())
 
 @app.route('/socket')
 def socket():
@@ -37,7 +36,7 @@ def socket():
 
 @app.route("/login")
 def login():
-    return render_template("login.html")
+    return render_template("login.html", cachebuster=cachebuster())
 
 if __name__ == '__main__':
     app.run()
