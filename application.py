@@ -4,6 +4,8 @@ from collections import defaultdict
 
 from flask import Flask
 from flask import render_template
+from flask import request
+from flask import jsonify 
 
 from flask_socketio import SocketIO, emit
 
@@ -12,7 +14,10 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
 # using set to just put user in existing room if he tries to create an existing name
-rooms = set('lobby') 
+rooms = set('lobby')
+
+users = set('System')
+
 messages = []
 
 messages = defaultdict(list)
@@ -26,8 +31,6 @@ def cachebuster():
 
 @app.route("/")
 def index():
-    
-
     return render_template('index.html', cachebuster=cachebuster())
 
 @app.route('/socket')
@@ -37,6 +40,12 @@ def socket():
 @app.route("/login")
 def login():
     return render_template("login.html", cachebuster=cachebuster())
+
+@app.route("/username_exists", methods=['POST'])
+def check_username():
+    if request.form.get('displayName') in users:
+        return jsonify( {"username_exists": "true"} )
+    return jsonify( {"username_exists": "false"} )
 
 if __name__ == '__main__':
     app.run()
