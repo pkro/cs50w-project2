@@ -1,6 +1,8 @@
 import os
 import time
+from datetime import datetime
 from collections import defaultdict
+from collections import deque
 
 from flask import Flask
 from flask import render_template
@@ -20,14 +22,20 @@ users = set('System')
 
 messages = []
 
-messages = defaultdict(list)
-messages['lobby'] = [('System', 'Welcome to the lobby')]
+messages = defaultdict(deque)
+# Using deque of size 100, entries "older than" 100 will be purged
+# index 0 is always the latest message
+messages['lobby'] = deque([], 100)
+
+messages['lobby'].appendleft((get_timestamp(), 'System', 'Welcome to the lobby'))
 
 debug = os.getenv("FLASK_DEBUG") == "1"
 
 def cachebuster():
     return time.time() if debug else "static"
 
+def get_timestamp():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 @app.route("/")
 def index():
