@@ -1,16 +1,9 @@
 import os
-import time
-from datetime import datetime
-from collections import defaultdict
-from collections import deque
-from collections import namedtuple
+from collections import defaultdict, deque, namedtuple
 
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import jsonify 
-
+from flask import Flask, jsonify, render_template, request
 from flask_socketio import SocketIO, emit
+from utils import cachebuster, get_timestamp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
@@ -30,12 +23,6 @@ initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
 messages['lobby'].appendleft(initial_message)
 
 debug = os.getenv("FLASK_DEBUG") == "1"
-
-def cachebuster():
-    return time.time() if debug else "static"
-
-def get_timestamp():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 @app.route("/")
 def index():
