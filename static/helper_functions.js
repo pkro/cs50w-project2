@@ -13,3 +13,7 @@ function onPageLoad(func) {
 function ce(tag) {
     return document.createElement(tag);
 }
+
+function cl(text) {
+    console.log(text);
+}

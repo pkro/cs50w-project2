@@ -11,14 +11,18 @@
 
 @media only screen and (max-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput   userinput  userinput";
+        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput   userinput  userinput";
   }
 }
 
 @media only screen and (min-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput   userinput";
+        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput   userinput";
   }
+}
+
+.alert {
+  display: none;
 }
 
 #logotext {

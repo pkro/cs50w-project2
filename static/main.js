@@ -1,7 +1,5 @@
 onPageLoad(
     () => {
-        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/socket');
-
         // Check if user already has a displayName
         displayName = localStorage.getItem('displayName');
         if( ! displayName) {
@@ -13,8 +11,20 @@ onPageLoad(
         // Are we on the login page? If yes, allow user to choose display name
         // and redirect to chat page
         if(qs('#submit_dp')) {
+
+            var input = document.getElementById("myInput");
+
+            // Enter should suffice to send "form"
+            var input = qs("#displayName");
+            input.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                qs("#submit_dp").click();
+            }
+            });
+
             qs('#submit_dp').onclick = () => {
-                
                 displayName = qs('#displayName').value;
 
                 const request = new XMLHttpRequest();
@@ -22,10 +32,10 @@ onPageLoad(
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
-                    console.log(data);
-                    // THIS DOESN't WORK, data.username_exists is always true it seems
+                    
                     if(data.username_exists) {
-                        alert("username exists")
+                        qs('.alert').style.display = "block";
+                        qs('.alert').innerText =  "Screenname already exists"
                     } else {
                         localStorage.setItem('displayName', displayName);
                         document.location.replace('/')
@@ -47,7 +57,6 @@ onPageLoad(
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
-                    console.log(data);
                     if(data.success) {
                         localStorage.removeItem('displayName')
                         document.location.replace('/login')
@@ -58,6 +67,9 @@ onPageLoad(
                 data.append('displayName', displayName);
                 request.send(data);
             }
+        
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/socket');
+
         }
 
     }
