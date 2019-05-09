@@ -42,8 +42,8 @@ def login():
 def username_exists():
     displayName = request.form.get('displayName')
     if displayName in users:
-        return jsonify( {"username_exists": "true"} )
-    return jsonify( {"username_exists": "false"} )
+        return jsonify( {"username_exists": True } )
+    return jsonify( {"username_exists": False } )
 
 # Allow user to logout / delete his display name (but not his messages)
 @app.route("/delete_user", methods=['POST'])
@@ -56,7 +56,7 @@ def delete_user():
         dbg(e)
     
     # if user doesn't exist in user list - so what.
-    return jsonify( {"success": "true"} )
+    return jsonify( {"success": True} )
 
 
 
