@@ -30,24 +30,26 @@ messages['lobby'].appendleft(initial_message)
 def index():
     return render_template('index.html', cachebuster=cachebuster())
 
-@app.route('/socket')
-def socket():
-    pass
+@socketio.on("create_room")
+def vote(data):
+    selection = data["room_name"]
+    votes[selection] += 1
+    emit("vote totals", votes, broadcast=True)
 
 @app.route("/login")
 def login():
     return render_template("login.html", cachebuster=cachebuster())
 
-@app.route("/username_exists", methods=['POST'])
-def username_exists():
+@app.route("/displayName_exists", methods=['POST'])
+def displayName_exists():
     displayName = request.form.get('displayName')
     if displayName in users:
-        return jsonify( {"username_exists": True } )
-    return jsonify( {"username_exists": False } )
+        return jsonify( {"displayName_exists": True } )
+    return jsonify( {"displayName_exists": False } )
 
 # Allow user to logout / delete his display name (but not his messages)
-@app.route("/delete_user", methods=['POST'])
-def delete_user():
+@app.route("/delete_displayName", methods=['POST'])
+def delete_displayName():
     displayName = request.form.get('displayName')
     dbg(f"Deleting {displayName}")
     try:

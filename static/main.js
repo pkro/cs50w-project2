@@ -28,14 +28,14 @@ onPageLoad(
                 displayName = qs('#displayName').value;
 
                 const request = new XMLHttpRequest();
-                request.open('POST', '/username_exists')
+                request.open('POST', '/displayName_exists')
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
                     
                     if(data.username_exists) {
                         qs('.alert').style.display = "block";
-                        qs('.alert').innerText =  "Screenname already exists"
+                        qs('.alert').innerText =  "Display name already exists"
                     } else {
                         localStorage.setItem('displayName', displayName);
                         document.location.replace('/')
@@ -53,7 +53,7 @@ onPageLoad(
 
             qs('#logout').onclick = () => {
                 const request = new XMLHttpRequest();
-                request.open('POST', '/delete_user')
+                request.open('POST', '/delete_displayName')
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
@@ -69,7 +69,14 @@ onPageLoad(
             }
         
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/socket');
-
+            
+            socket.on('connect', () => {
+                qs('#button_send').onclick = () => {
+                        const message = qs('#userinput').value;
+                        socket.emit('new message', {'message': message, 'displayName': displayName});
+                    };
+                });
+            });
         }
 
     }
