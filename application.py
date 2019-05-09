@@ -13,19 +13,16 @@ app.config["SECRET_KEY"] = config.secret_key
 socketio = SocketIO(app)
 
 # using set to just put user in existing room if he tries to create an existing name
-rooms = set(['lobby'])
+reserved_user = 'System'
+users = set([reserved_user])
+reserved_room = 'Lobby'
+rooms = set([reserved_room])
 
-users = set(['System'])
 
 Message = namedtuple('Message', ['timestamp', 'user', 'message'])
 messages = defaultdict(deque)
 # Using deque of size 100, entries "older than" 100 will be purged
 # index 0 is always the latest message
-'''
-messages['lobby'] = deque([], 100)
-initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
-messages['lobby'].appendleft(initial_message)
-'''
 messages = dict()
 messages['lobby'] = deque([], 100)
 initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
@@ -45,11 +42,12 @@ def new_message(data):
                                         message))
 
     # need to convert to jsoncompatible data structure
+    # ToDo: make dict comprehensioon because python
     messages_response = dict()
     for room_ in messages:
         messages_response[room_] = list(messages[room_])
     # why are they still deque?
-    dbg(messages)
+    dbg(messages_response)
 
     emit("update messages", messages_response, broadcast=True)
 
@@ -67,6 +65,8 @@ def login():
 @app.route("/displayName_exists", methods=['POST'])
 def displayName_exists():
     displayName = request.form.get('displayName')
+    dbg(displayName)
+    dbg(users)
     if displayName in users:
         return jsonify( {"displayName_exists": True } )
     return jsonify( {"displayName_exists": False } )
@@ -76,10 +76,11 @@ def displayName_exists():
 def delete_displayName():
     displayName = request.form.get('displayName')
     dbg(f"Deleting {displayName}")
-    try:
-        users.remove(request.form.get('displayName'))
-    except Exception as e:
-        dbg(e)
+    if displayName != reserved_user:
+        try:
+            users.remove(request.form.get('displayName'))
+        except Exception as e:
+            dbg(e)
     
     # if user doesn't exist in user list - so what.
     return jsonify( {"success": True} )

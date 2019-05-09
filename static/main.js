@@ -69,10 +69,10 @@ onPageLoad(
             }
         
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-            
+            currentRoom = localStorage.getItem('currentRoom');
+
             socket.on('connect', () => {
                 qs('#button_send').onclick = () => {
-                        currentRoom = localStorage.getItem('currentRoom');
                         if( ! currentRoom ) {
                             currentRoom = 'lobby'
                         }
@@ -83,7 +83,10 @@ onPageLoad(
             
 
             socket.on('update messages', data => {
-                cl(data.messages)
+                cl(data[currentRoom])
+                data[currentRoom].forEach( message => {
+                    // ToDo: Append messages to message view of current room
+                })
             });
         }
 
