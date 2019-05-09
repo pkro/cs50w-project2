@@ -9,16 +9,18 @@
         grid-template-areas: 
         "menubar    menubar     menubar"
         "messages   messages    messages"
-        "userinput   userinput  userinput"
+        "userinput_group   userinput_group  userinput_group"
     }
     @media only screen and (min-width: 600px) {
         grid-template-areas: 
         "menubar    menubar     menubar"
         "rooms      messages    users"
-        "rooms      userinput   userinput"
+        "rooms      userinput_group   userinput_group"
     }
 }
-
+.alert {
+    display: none;
+}
 #logotext {
     font-size:2em;
 }
@@ -49,8 +51,8 @@
     background: #C5CBE3;
 }
 
-#userinput {
-    grid-area: userinput;
+#userinput_group {
+    grid-area: userinput_group;
     display: grid;
     background: white;
     

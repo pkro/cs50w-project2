@@ -21,20 +21,44 @@ Message = namedtuple('Message', ['timestamp', 'user', 'message'])
 messages = defaultdict(deque)
 # Using deque of size 100, entries "older than" 100 will be purged
 # index 0 is always the latest message
+'''
 messages['lobby'] = deque([], 100)
 initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
 messages['lobby'].appendleft(initial_message)
-
+'''
+messages = dict()
+messages['lobby'] = deque([], 100)
+initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
+messages['lobby'].appendleft(initial_message)
 
 @app.route("/")
 def index():
     return render_template('index.html', cachebuster=cachebuster())
 
-@socketio.on("create_room")
-def vote(data):
-    selection = data["room_name"]
-    votes[selection] += 1
-    emit("vote totals", votes, broadcast=True)
+@socketio.on("new message")
+def new_message(data):
+    displayName = data["displayName"]
+    room = data["room"]
+    message = data["message"]
+    messages[room].appendleft(Message(  get_timestamp(),
+                                        displayName,
+                                        message))
+
+    # need to convert to jsoncompatible data structure
+    messages_response = dict()
+    for room_ in messages:
+        messages_response[room_] = list(messages[room_])
+    # why are they still deque?
+    dbg(messages)
+
+    emit("update messages", messages_response, broadcast=True)
+
+
+@socketio.on("create room")
+def create_room(data):
+    room = data["room_name"]
+    rooms.add(room)
+    emit("rooms", rooms, broadcast=True)
 
 @app.route("/login")
 def login():

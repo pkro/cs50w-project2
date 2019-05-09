@@ -68,14 +68,22 @@ onPageLoad(
                 request.send(data);
             }
         
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/socket');
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
             
             socket.on('connect', () => {
                 qs('#button_send').onclick = () => {
+                        currentRoom = localStorage.getItem('currentRoom');
+                        if( ! currentRoom ) {
+                            currentRoom = 'lobby'
+                        }
                         const message = qs('#userinput').value;
-                        socket.emit('new message', {'message': message, 'displayName': displayName});
+                        socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
                     };
-                });
+            });
+            
+
+            socket.on('update messages', data => {
+                cl(data.messages)
             });
         }
 
