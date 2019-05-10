@@ -29,10 +29,13 @@ messages['lobby'].appendleft(initial_message)
 
 @app.route("/")
 def index():
+    # "When you want to emit from a regular route you have to use 
+    # socketio.emit(), only socket handlers have the socketio context necessary to call the plain emit()
+    socketio.emit("update rooms", list(rooms), broadcast=True)
     return render_template('index.html', cachebuster=cachebuster())
 
 @socketio.on("pull messages")
-def pull_messages():
+def pull_messages(data):
     messages_response = dict()
     for room_ in messages:
         messages_response[room_] = list(messages[room_])
@@ -60,11 +63,16 @@ def new_message(data):
     emit("update messages", messages_response, broadcast=True)
 
 
-@socketio.on("create room")
-def create_room(data):
-    room = data["room_name"]
-    rooms.add(room)
-    emit("rooms", rooms, broadcast=True)
+@app.route("/create_room", methods=['POST'])
+def create_room():
+    new_room = request.form.get('new_room')
+    # using a set should take care of duplicate rooms
+    rooms.add(new_room)
+    loc_rooms = list(rooms)
+    # sort everything after second item in place
+    loc_rooms[1:].sort()
+    socketio.emit("update rooms", loc_rooms, broadcast=True)
+    return ""
 
 @app.route("/login")
 def login():

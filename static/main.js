@@ -50,7 +50,8 @@ onPageLoad(
         // we are on the main page
         else {
             qs('#displayNameHead').innerText = displayName;
-
+            
+            // logout user
             qs('#logout').onclick = () => {
                 const request = new XMLHttpRequest();
                 request.open('POST', '/delete_displayName')
@@ -67,11 +68,26 @@ onPageLoad(
                 data.append('displayName', displayName);
                 request.send(data);
             }
-        
+            
+            // Create new room by typing in new name
+            // ToDo: Check if room exisit + message
+            // ToDo: put user in newly created room
+            var create_room = qs("#create_room");
+            create_room.addEventListener("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    const request = new XMLHttpRequest();
+                    request.open('POST', '/create_room')
+                    const data = new FormData();
+                    data.append('new_room', create_room.value);
+                    request.send(data);
+                }
+            });
+            
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
             currentRoom = localStorage.getItem('currentRoom');
             if( ! currentRoom ) {
-                currentRoom = 'lobby'
+                currentRoom = 'Lobby'
             }
 
             socket.on('connect', () => {
@@ -81,6 +97,15 @@ onPageLoad(
                     };
             });
             
+            socket.on('update rooms', data => {
+                data.forEach( room => {
+                    let room_li = document.createElement('li');
+                    room_li.setAttribute('class', 'room_listitem')
+                    room_li.appendChild(document.createTextNode(`${room}` ));
+                    qs('#room_list').appendChild(room_li)
+                })
+            });
+
             socket.emit('pull messages', {'room': currentRoom});
 
             socket.on('update messages', data => {
