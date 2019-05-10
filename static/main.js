@@ -32,8 +32,7 @@ onPageLoad(
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
-                    
-                    if(data.username_exists) {
+                    if(data.displayName_exists) {
                         qs('.alert').style.display = "block";
                         qs('.alert').innerText =  "Display name already exists"
                     } else {
@@ -44,6 +43,7 @@ onPageLoad(
 
                 const data = new FormData();
                 data.append('displayName', displayName);
+                data.append('room', 'Lobby');
                 request.send(data);
             }
         }
