@@ -1,5 +1,5 @@
 import os
-from collections import defaultdict, deque, namedtuple
+from collections import deque, namedtuple
 
 from flask import Flask, jsonify, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -15,12 +15,11 @@ socketio = SocketIO(app)
 # using set to just put user in existing room if he tries to create an existing name
 reserved_user = 'System'
 users = set([reserved_user])
-reserved_room = 'Lobby'
+reserved_room = "Lobby"
 rooms = set([reserved_room])
 
 
 Message = namedtuple('Message', ['timestamp', 'user', 'message'])
-messages = defaultdict(deque)
 # Using deque of size 100, entries "older than" 100 will be purged
 # index 0 is always the latest message
 messages = dict()
@@ -74,8 +73,6 @@ def login():
 @app.route("/displayName_exists", methods=['POST'])
 def displayName_exists():
     displayName = request.form.get('displayName')
-    dbg(displayName)
-    dbg(users)
     if displayName in users:
         return jsonify( {"displayName_exists": True } )
     return jsonify( {"displayName_exists": False } )
