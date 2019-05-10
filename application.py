@@ -2,7 +2,7 @@ import os
 from collections import defaultdict, deque, namedtuple
 
 from flask import Flask, jsonify, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import config
 from utils import cachebuster, get_timestamp, dbg
@@ -32,8 +32,17 @@ messages['lobby'].appendleft(initial_message)
 def index():
     return render_template('index.html', cachebuster=cachebuster())
 
+@socketio.on("pull messages")
+def pull_messages():
+    messages_response = dict()
+    for room_ in messages:
+        messages_response[room_] = list(messages[room_])
+
+    emit("update messages", messages_response, broadcast=True)
+
 @socketio.on("new message")
 def new_message(data):
+    dbg(str(data))
     displayName = data["displayName"]
     room = data["room"]
     message = data["message"]
