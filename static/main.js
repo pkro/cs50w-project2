@@ -80,6 +80,7 @@ onPageLoad(
                     request.open('POST', '/create_room')
                     const data = new FormData();
                     data.append('new_room', create_room.value);
+                    create_room.value = "";
                     request.send(data);
                 }
             });
@@ -89,7 +90,11 @@ onPageLoad(
             if( ! currentRoom ) {
                 currentRoom = 'Lobby'
             }
-
+            
+            // init
+            socket.emit('pull rooms');
+            socket.emit('pull messages', {'room': currentRoom});
+            
             socket.on('connect', () => {
                 qs('#button_send').onclick = () => {
                         const message = qs('#userinput').value;
@@ -108,13 +113,11 @@ onPageLoad(
                 })
             });
             
-            // init
-            socket.emit('pull rooms');
-            socket.emit('pull messages', {'room': currentRoom});
+            
 
             socket.on('update messages', data => {
+                qs('#messages_list').innerHTML = "";
                 data[currentRoom].forEach( message => {
-                    // ToDo: Append messages to message view of current room
                     let message_li = document.createElement('li');
                     message_li.appendChild(document.createTextNode(`${message[0]} - ${message[1]}: ${message[2]}` ));
                     qs('#messages_list').appendChild(message_li)
