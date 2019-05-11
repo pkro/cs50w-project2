@@ -67,6 +67,7 @@ onPageLoad(
                 *********************************************************************/
                 qs('#button_send').onclick = () => {
                     const message = qs('#userinput').value;
+                    qs('#userinput').value = '';
                     socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
                 };
                 
