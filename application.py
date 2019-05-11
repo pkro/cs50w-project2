@@ -10,8 +10,11 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 import config
 from utils import cachebuster, get_timestamp, dbg
 
+# ToDo: Pull users doesn't work yet
+
+
 '''**************************************************************
-* INTIT
+* INIT
 **************************************************************'''
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.secret_key
@@ -21,7 +24,7 @@ socketio = SocketIO(app)
 reserved_user = 'System'
 users = [reserved_user]
 reserved_room = "Lobby"
-rooms = [reserved_room]
+rooms_users = {reserved_room:[reserved_user]}
 
 Message = namedtuple('Message', ['timestamp', 'user', 'message'])
 # Using deque of size 100, entries "older than" 100 will be purged
@@ -57,26 +60,27 @@ def displayName_exists():
 @app.route("/delete_displayName", methods=['POST'])
 def delete_displayName():
     displayName = request.form.get('displayName')
-    dbg(f"Deleting {displayName}")
+    room = request.form.get('room')
     if displayName != reserved_user:
         try:
-            users.remove(request.form.get('displayName'))
+            users.remove(displayName)
+            rooms_users[room].remove(displayName)
         except Exception as e:
             dbg(e)
-    
-    # if user doesn't exist in user list - so what.
+
     return jsonify( {"success": True} )
 
 @app.route("/create_room", methods=['POST'])
 def create_room():
     new_room = request.form.get('new_room')
-    if new_room not in rooms:
-        rooms.append(new_room)
+    displayName = request.form.get('displayName')
+    if new_room not in rooms_users.keys():
+        rooms_users[new_room] = [reserved_user, displayName]
         messages[new_room] = deque([], 100)
-        message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}""')
+        message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}"')
         messages[new_room].append(message)
 
-    loc_rooms = rooms
+    loc_rooms = list(rooms_users.keys())
     # Keep Lobby first, sort everything else
     loc_rooms[1:] = sorted(loc_rooms[1:])
     # "only socket handlers have the socketio context necessary to call the plain emit()"
@@ -89,28 +93,34 @@ def create_room():
 * SOCKETS
 **************************************************************'''
 @socketio.on("pull rooms")
-def pull_rooms():
-    loc_rooms = list(rooms)
+def pull_rooms(data):
+    loc_rooms = list(rooms_users.keys())
     # sort everything after second item in place
     loc_rooms[1:] = sorted(loc_rooms[1:])
     socketio.emit("update rooms", loc_rooms, broadcast=True)
+    emit("update users", list(rooms_users[data['room']]), broadcast=True)
 
 @socketio.on("pull messages")
 def pull_messages(data):
     messages_response = dict()
     emit("update messages", list(messages[data['room']]), broadcast=True)
 
+@socketio.on("pull users")
+def pull_users(data):
+    dbg(list(rooms_users[data['room']]))
+    emit("update users", list(rooms_users[data['room']]), broadcast=True)
+
 @socketio.on("new message")
 def new_message(data):
     displayName = data["displayName"]
     current_room = data["room"]
     message = data["message"]
-    messages[current_room].append(Message(  get_timestamp(),
-                                        displayName,
-                                        message))
-
-    # need to convert deque to jsoncompatible data structure (list)
-    emit("update messages", list(messages[current_room]), broadcast=True)
+    if current_room in rooms_users.keys():
+        messages[current_room].append(Message(  get_timestamp(),
+                                            displayName,
+                                            message))
+        # need to convert deque to jsoncompatible data structure (list)
+        emit("update messages", list(messages[current_room]), broadcast=True)
 
 if __name__ == '__main__':
     app.run()

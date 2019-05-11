@@ -49,8 +49,13 @@ onPageLoad(
         // we are on the main page
         else {
             const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            // otherwise room is not found and mayhem
+            socket.on('disconnect', function () {
+                socket.emit('disconnected');
+                localStorage.removeItem('currentRoom')
+            });
+
             socket.on('connect', () => {
-                
                 /********************************************************************
                 * Init - pull existing messages and rooms
                 *********************************************************************/
@@ -61,6 +66,7 @@ onPageLoad(
                 }
                 socket.emit('pull rooms');
                 socket.emit('pull messages', {'room': currentRoom});
+                socket.emit('pull users', {'room': currentRoom});
                 
                 /********************************************************************
                 * Event listeners for user controls
@@ -80,12 +86,14 @@ onPageLoad(
                         const data = JSON.parse(request.responseText);
                         if(data.success) {
                             localStorage.removeItem('displayName')
+                            localStorage.removeItem('currentRoom')
                             document.location.replace('/login')
                         }
                     }
 
                     const data = new FormData();
                     data.append('displayName', displayName);
+                    data.append('room', currentRoom);
                     request.send(data);
                 }
                 
@@ -100,6 +108,7 @@ onPageLoad(
                         request.open('POST', '/create_room')
                         const data = new FormData();
                         data.append('new_room', create_room.value);
+                        data.append('displayName', displayName);
                         currentRoom = create_room.value;
                         localStorage.setItem('currentRoom', currentRoom);
                         create_room.value = "";
@@ -126,6 +135,15 @@ onPageLoad(
                         let message_li = document.createElement('li');
                         message_li.appendChild(document.createTextNode(`${message[0]} - ${message[1]}: ${message[2]}` ));
                         qs('#messages_list').appendChild(message_li)
+                    })
+                });
+
+                socket.on('update users', data => {
+                    qs('#users_list').innerHTML = "";
+                    data.forEach( user => {
+                        let user_li = document.createElement('li');
+                        user_li.appendChild(document.createTextNode(`${user}`));
+                        qs('#users_list').appendChild(user_li)
                     })
                 });
             });
