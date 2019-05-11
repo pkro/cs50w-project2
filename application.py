@@ -29,7 +29,7 @@ Message = namedtuple('Message', ['timestamp', 'user', 'message'])
 messages = dict()
 messages[reserved_room] = deque([], 100)
 initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
-messages[reserved_room].appendleft(initial_message)
+messages[reserved_room].append(initial_message)
 
 '''**************************************************************
 * REGULAR ROUTES
@@ -74,7 +74,7 @@ def create_room():
         rooms.append(new_room)
     loc_rooms = rooms
     # Keep Lobby first, sort everything else
-    loc_rooms[1:].sort()
+    loc_rooms[1:] = sorted(loc_rooms[1:])
     # "only socket handlers have the socketio context necessary to call the plain emit()"
     socketio.emit("update rooms", loc_rooms, broadcast=True)
     return jsonify( {"success": True} )
@@ -87,8 +87,7 @@ def create_room():
 def pull_rooms():
     loc_rooms = list(rooms)
     # sort everything after second item in place
-    loc_rooms[1:].sort()
-    dbg(loc_rooms)
+    loc_rooms[1:] = sorted(loc_rooms[1:])
     socketio.emit("update rooms", loc_rooms, broadcast=True)
 
 @socketio.on("pull messages")
@@ -101,11 +100,10 @@ def pull_messages(data):
 
 @socketio.on("new message")
 def new_message(data):
-    dbg(str(data))
     displayName = data["displayName"]
     current_room = data["room"]
     message = data["message"]
-    messages[current_room].appendleft(Message(  get_timestamp(),
+    messages[current_room].append(Message(  get_timestamp(),
                                         displayName,
                                         message))
 
