@@ -11,10 +11,8 @@ onPageLoad(
         // Are we on the login page? If yes, allow user to choose display name
         // and redirect to chat page
         if(qs('#submit_dp')) {
-
             var input = document.getElementById("myInput");
-
-            // Enter should suffice to send "form"
+            // Enter should suffice to send login name
             var input = qs("#displayName");
             input.addEventListener("keyup", function(event) {
                 // Number 13 is the "Enter" key on the keyboard
@@ -47,78 +45,87 @@ onPageLoad(
                 request.send(data);
             }
         }
+
         // we are on the main page
         else {
-            qs('#displayNameHead').innerText = displayName;
-            
-            // logout user
-            qs('#logout').onclick = () => {
-                const request = new XMLHttpRequest();
-                request.open('POST', '/delete_displayName')
-
-                request.onload = () => {
-                    const data = JSON.parse(request.responseText);
-                    if(data.success) {
-                        localStorage.removeItem('displayName')
-                        document.location.replace('/login')
-                    }
+            const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+            socket.on('connect', () => {
+                
+                /********************************************************************
+                * Init - pull existing messages and rooms
+                *********************************************************************/
+                qs('#displayNameHead').innerText = displayName;
+                currentRoom = localStorage.getItem('currentRoom');
+                if( ! currentRoom ) {
+                    currentRoom = 'Lobby'
                 }
-
-                const data = new FormData();
-                data.append('displayName', displayName);
-                request.send(data);
-            }
-            
-            // Create new room by typing in new name
-            // ToDo: Check if room exists + message
-            // ToDo: put user in newly created room
-            var create_room = qs("#create_room");
-            create_room.addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
+                socket.emit('pull rooms');
+                socket.emit('pull messages', {'room': currentRoom});
+                
+                /********************************************************************
+                * Event listeners for user controls
+                *********************************************************************/
+                qs('#button_send').onclick = () => {
+                    const message = qs('#userinput').value;
+                    socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
+                };
+                
+                // logout user
+                qs('#logout').onclick = () => {
                     const request = new XMLHttpRequest();
-                    request.open('POST', '/create_room')
+                    request.open('POST', '/delete_displayName')
+
+                    request.onload = () => {
+                        const data = JSON.parse(request.responseText);
+                        if(data.success) {
+                            localStorage.removeItem('displayName')
+                            document.location.replace('/login')
+                        }
+                    }
+
                     const data = new FormData();
-                    data.append('new_room', create_room.value);
-                    create_room.value = "";
+                    data.append('displayName', displayName);
                     request.send(data);
                 }
-            });
-            
-            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-            currentRoom = localStorage.getItem('currentRoom');
-            if( ! currentRoom ) {
-                currentRoom = 'Lobby'
-            }
-            
-            // init
-            socket.emit('pull rooms');
-            socket.emit('pull messages', {'room': currentRoom});
-            
-            socket.on('connect', () => {
-                qs('#button_send').onclick = () => {
-                        const message = qs('#userinput').value;
-                        socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
-                    };
-            });
-            
-            socket.on('update rooms', data => {
-                qs('#room_list').innerHTML = "";
-                data.forEach( room => {
-                    let room_li = document.createElement('li');
-                    room_li.setAttribute('class', 'room_listitem')
-                    room_li.appendChild(document.createTextNode(`${room}` ));
-                    qs('#room_list').appendChild(room_li)
-                })
-            });
-            
-            socket.on('update messages', data => {
-                qs('#messages_list').innerHTML = "";
-                data.forEach( message => {
-                    let message_li = document.createElement('li');
-                    message_li.appendChild(document.createTextNode(`${message[0]} - ${message[1]}: ${message[2]}` ));
-                    qs('#messages_list').appendChild(message_li)
-                })
+                
+                // Create new room by typing in new name
+                // ToDo: Check if room exists + message
+                // ToDo: put user in newly created room
+                var create_room = qs("#create_room");
+                create_room.addEventListener("keyup", function(event) {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        const request = new XMLHttpRequest();
+                        request.open('POST', '/create_room')
+                        const data = new FormData();
+                        data.append('new_room', create_room.value);
+                        currentRoom = create_room.value;
+                        create_room.value = "";
+                        request.send(data);
+                    }
+                });
+
+                /********************************************************************
+                * Socket listeners
+                *********************************************************************/                
+                socket.on('update rooms', data => {
+                    qs('#room_list').innerHTML = "";
+                    data.forEach( room => {
+                        let room_li = document.createElement('li');
+                        room_li.setAttribute('class', 'room_listitem')
+                        room_li.appendChild(document.createTextNode(`${room}` ));
+                        qs('#room_list').appendChild(room_li)
+                    })
+                });
+                
+                socket.on('update messages', data => {
+                    qs('#messages_list').innerHTML = "";
+                    data.forEach( message => {
+                        let message_li = document.createElement('li');
+                        message_li.appendChild(document.createTextNode(`${message[0]} - ${message[1]}: ${message[2]}` ));
+                        qs('#messages_list').appendChild(message_li)
+                    })
+                });
             });
         }
 

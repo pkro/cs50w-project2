@@ -72,11 +72,16 @@ def create_room():
     new_room = request.form.get('new_room')
     if new_room not in rooms:
         rooms.append(new_room)
+        messages[new_room] = deque([], 100)
+        message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}""')
+        messages[new_room].append(message)
+
     loc_rooms = rooms
     # Keep Lobby first, sort everything else
     loc_rooms[1:] = sorted(loc_rooms[1:])
     # "only socket handlers have the socketio context necessary to call the plain emit()"
     socketio.emit("update rooms", loc_rooms, broadcast=True)
+    socketio.emit("update messages", list(messages[new_room]), broadcast=True)
     return jsonify( {"success": True} )
 
 
@@ -106,9 +111,6 @@ def new_message(data):
 
     # need to convert deque to jsoncompatible data structure (list)
     emit("update messages", list(messages[current_room]), broadcast=True)
-
-
-
 
 if __name__ == '__main__':
     app.run()
