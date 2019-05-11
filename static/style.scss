@@ -38,17 +38,20 @@
 #rooms {
     grid-area: rooms;
     background: #C5CBE3;
+    overflow-y:auto
 }
 
 #messages {
     grid-area: messages;
     background: #EFE2BA;
     color:black;
+    overflow-y:auto
 }
 
 #users {
     grid-area: users;
     background: #C5CBE3;
+    overflow-y:auto
 }
 
 #userinput_group {
