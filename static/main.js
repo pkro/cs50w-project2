@@ -101,6 +101,7 @@ onPageLoad(
                         const data = new FormData();
                         data.append('new_room', create_room.value);
                         currentRoom = create_room.value;
+                        localStorage.setItem('currentRoom', currentRoom);
                         create_room.value = "";
                         request.send(data);
                     }
