@@ -93,10 +93,7 @@ def pull_rooms():
 @socketio.on("pull messages")
 def pull_messages(data):
     messages_response = dict()
-    for room_ in messages:
-        messages_response[room_] = list(messages[room_])
-
-    emit("update messages", messages_response, broadcast=True)
+    emit("update messages", list(messages[data['room']]), broadcast=True)
 
 @socketio.on("new message")
 def new_message(data):
@@ -107,10 +104,8 @@ def new_message(data):
                                         displayName,
                                         message))
 
-    # need to convert to jsoncompatible data structure (list)
-    # dict comprehension template: {key:value for i in iterable}
-    messages_response = { room:list(messages[room]) for room in messages }
-    emit("update messages", messages_response, broadcast=True)
+    # need to convert deque to jsoncompatible data structure (list)
+    emit("update messages", list(messages[current_room]), broadcast=True)
 
 
 

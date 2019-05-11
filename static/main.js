@@ -70,7 +70,7 @@ onPageLoad(
             }
             
             // Create new room by typing in new name
-            // ToDo: Check if room exisit + message
+            // ToDo: Check if room exists + message
             // ToDo: put user in newly created room
             var create_room = qs("#create_room");
             create_room.addEventListener("keyup", function(event) {
@@ -104,7 +104,6 @@ onPageLoad(
             
             socket.on('update rooms', data => {
                 qs('#room_list').innerHTML = "";
-                cl(qs('#room_list'))
                 data.forEach( room => {
                     let room_li = document.createElement('li');
                     room_li.setAttribute('class', 'room_listitem')
@@ -113,11 +112,9 @@ onPageLoad(
                 })
             });
             
-            
-
             socket.on('update messages', data => {
                 qs('#messages_list').innerHTML = "";
-                data[currentRoom].forEach( message => {
+                data.forEach( message => {
                     let message_li = document.createElement('li');
                     message_li.appendChild(document.createTextNode(`${message[0]} - ${message[1]}: ${message[2]}` ));
                     qs('#messages_list').appendChild(message_li)
