@@ -17,10 +17,10 @@ onPageLoad(
             // Enter should suffice to send "form"
             var input = qs("#displayName");
             input.addEventListener("keyup", function(event) {
-            // Number 13 is the "Enter" key on the keyboard
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                qs("#submit_dp").click();
+                // Number 13 is the "Enter" key on the keyboard
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    qs("#submit_dp").click();
             }
             });
 
@@ -98,6 +98,8 @@ onPageLoad(
             });
             
             socket.on('update rooms', data => {
+                qs('#room_list').innerHTML = "";
+                cl(qs('#room_list'))
                 data.forEach( room => {
                     let room_li = document.createElement('li');
                     room_li.setAttribute('class', 'room_listitem')
@@ -105,7 +107,9 @@ onPageLoad(
                     qs('#room_list').appendChild(room_li)
                 })
             });
-
+            
+            // init
+            socket.emit('pull rooms');
             socket.emit('pull messages', {'room': currentRoom});
 
             socket.on('update messages', data => {
