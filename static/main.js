@@ -14,12 +14,12 @@ onPageLoad(
             var input = document.getElementById("myInput");
             // Enter should suffice to send login name
             var input = qs("#displayName");
-            input.addEventListener("keyup", function(event) {
-                // Number 13 is the "Enter" key on the keyboard
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    qs("#submit_dp").click();
-            }
+                input.addEventListener("keyup", function(event) {
+                    // Number 13 is the "Enter" key on the keyboard
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        qs("#submit_dp").click();
+                }
             });
 
             qs('#submit_dp').onclick = () => {
@@ -57,18 +57,6 @@ onPageLoad(
 
             socket.on('connect', () => {
                 /********************************************************************
-                * Init - pull existing messages and rooms
-                *********************************************************************/
-                qs('#displayNameHead').innerText = displayName;
-                currentRoom = localStorage.getItem('currentRoom');
-                if( ! currentRoom ) {
-                    currentRoom = 'Lobby'
-                }
-                socket.emit('pull rooms');
-                socket.emit('pull messages', {'room': currentRoom});
-                socket.emit('pull users', {'room': currentRoom});
-                
-                /********************************************************************
                 * Event listeners for user controls
                 *********************************************************************/
                 qs('#button_send').onclick = () => {
@@ -97,9 +85,7 @@ onPageLoad(
                     request.send(data);
                 }
                 
-                // Create new room by typing in new name
-                // ToDo: Check if room exists + message
-                // ToDo: put user in newly created room
+                // Create new room by typing in new name + enter
                 var create_room = qs("#create_room");
                 create_room.addEventListener("keyup", function(event) {
                     if (event.keyCode === 13) {
@@ -121,6 +107,7 @@ onPageLoad(
                 *********************************************************************/                
                 socket.on('update rooms', data => {
                     qs('#room_list').innerHTML = "";
+                    cl(data)
                     data.forEach( room => {
                         let room_li = document.createElement('li');
                         room_li.setAttribute('class', 'room_listitem')
@@ -140,12 +127,27 @@ onPageLoad(
 
                 socket.on('update users', data => {
                     qs('#users_list').innerHTML = "";
+                    cl(data)
                     data.forEach( user => {
                         let user_li = document.createElement('li');
                         user_li.appendChild(document.createTextNode(`${user}`));
                         qs('#users_list').appendChild(user_li)
                     })
                 });
+                
+                /********************************************************************
+                * Init - pull existing messages and rooms
+                *********************************************************************/
+                qs('#displayNameHead').innerText = displayName;
+                currentRoom = localStorage.getItem('currentRoom');
+                if( ! currentRoom ) {
+                    currentRoom = 'Lobby'
+                }
+                socket.emit('pull rooms', {'displayName': displayName, 'room': currentRoom});
+                // we take care of that in pull rooms event as well
+                // socket.emit('pull users', {'room': currentRoom});
+                socket.emit('pull messages', {'room': currentRoom});
+                
             });
         }
 

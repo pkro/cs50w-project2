@@ -4,7 +4,7 @@
 import os
 from collections import deque, namedtuple
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import config
@@ -54,6 +54,8 @@ def displayName_exists():
     displayName = request.form.get('displayName')
     if displayName in users:
         return jsonify( {"displayName_exists": True } )
+    
+    users.append(displayName)
     return jsonify( {"displayName_exists": False } )
 
 # Allow user to logout / delete his display name (but not his messages)
@@ -80,6 +82,7 @@ def create_room():
         message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}"')
         messages[new_room].append(message)
 
+    # using list explicitly creates a copy from the "set like" .keys() object
     loc_rooms = list(rooms_users.keys())
     # Keep Lobby first, sort everything else
     loc_rooms[1:] = sorted(loc_rooms[1:])
@@ -94,21 +97,24 @@ def create_room():
 **************************************************************'''
 @socketio.on("pull rooms")
 def pull_rooms(data):
+    displayName = data["displayName"]
+    current_room = data["room"]
     loc_rooms = list(rooms_users.keys())
     # sort everything after second item in place
     loc_rooms[1:] = sorted(loc_rooms[1:])
-    socketio.emit("update rooms", loc_rooms, broadcast=True)
-    emit("update users", list(rooms_users[data['room']]), broadcast=True)
+    emit("update rooms", loc_rooms, broadcast=True)
+    if displayName not in rooms_users[current_room]:
+        rooms_users[current_room].append(displayName)
+    if displayName not in users:
+        users.append(displayName)
+    emit("update users", list(rooms_users[current_room]), broadcast=True)
+
 
 @socketio.on("pull messages")
 def pull_messages(data):
     messages_response = dict()
     emit("update messages", list(messages[data['room']]), broadcast=True)
 
-@socketio.on("pull users")
-def pull_users(data):
-    dbg(list(rooms_users[data['room']]))
-    emit("update users", list(rooms_users[data['room']]), broadcast=True)
 
 @socketio.on("new message")
 def new_message(data):
@@ -116,6 +122,10 @@ def new_message(data):
     current_room = data["room"]
     message = data["message"]
     if current_room in rooms_users.keys():
+        if displayName not in rooms_users[current_room]:
+            rooms_users[current_room].append(displayName)
+        if displayName not in users:
+            users.append(displayName)
         messages[current_room].append(Message(  get_timestamp(),
                                             displayName,
                                             message))
