@@ -10,7 +10,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 import config
 from utils import cachebuster, get_timestamp, dbg
 
-# ToDo: Pull users doesn't work yet
+# ToDo: Complete rewrite to use socket rooms and users I guess
 
 
 '''**************************************************************
@@ -114,7 +114,6 @@ def pull_rooms(data):
 def pull_messages(data):
     messages_response = dict()
     emit("update messages", list(messages[data['room']]), broadcast=True)
-
 
 @socketio.on("new message")
 def new_message(data):
