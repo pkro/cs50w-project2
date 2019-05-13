@@ -102,17 +102,32 @@ onPageLoad(
                     }
                 });
 
+                qsa('.room_listitem').forEach ( room_li => {
+
+                });
+
                 /********************************************************************
                 * Socket listeners
                 *********************************************************************/                
                 socket.on('update rooms', data => {
                     qs('#room_list').innerHTML = "";
-                    cl(data)
                     data.forEach( room => {
                         let room_li = document.createElement('li');
-                        room_li.setAttribute('class', 'room_listitem')
+                        room_li.setAttribute('class', 'room_listitem');
+                        // I don't need to use a dataset but may be useful later
+                        room_li.setAttribute('data-room_name', room);
+                        room_li.onclick = () => {
+                            const request = new XMLHttpRequest();
+                            request.open('POST', '/change_room')
+                            const data = new FormData();
+                            data.append('new_room', room_li.dataset.room_name);
+                            data.append('displayName', displayName);
+                            currentRoom = room_li.dataset.room_name;
+                            localStorage.setItem('currentRoom', currentRoom);
+                            request.send(data);
+                        }
                         room_li.appendChild(document.createTextNode(`${room}` ));
-                        qs('#room_list').appendChild(room_li)
+                        qs('#room_list').appendChild(room_li);
                     })
                 });
                 

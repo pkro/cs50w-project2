@@ -91,6 +91,16 @@ def create_room():
     socketio.emit("update messages", list(messages[new_room]), broadcast=True)
     return jsonify( {"success": True} )
 
+@app.route("/change_room", methods=['POST'])
+def change_room():
+    new_room = request.form.get('new_room')
+    displayName = request.form.get('displayName')
+    if new_room not in rooms_users.keys():
+        # Something went wrong, browser data out of sync with app data?
+        return jsonify( {"success": False} )
+
+    socketio.emit("update messages", list(messages[new_room]), broadcast=True)
+    return jsonify( {"success": True} )
 
 '''**************************************************************
 * SOCKETS
