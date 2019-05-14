@@ -93,11 +93,10 @@ def create_room():
 @app.route('/translate', methods=['POST'])
 def translate():
     text = request.form.get('message')
-    text = text.encode(encoding='UTF-8',errors='strict')
     blob = TextBlob(text)
     text_en = blob.translate(to='en')
 
-    return jsonify( {"translation": text_en } )
+    return jsonify( {"translation": str(text_en) } )
 
 '''**************************************************************
 * SOCKETS
