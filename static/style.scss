@@ -4,7 +4,7 @@
     grid-template-columns: 20% 60% 20%;
     grid-template-rows: 1fr 4fr 1fr;
     grid-gap: 0.2em;
-    
+    height:430px;
     @media only screen and (max-width: 600px) {
         grid-template-areas: 
         "menubar    menubar     menubar"
@@ -40,14 +40,16 @@
 #rooms {
     grid-area: rooms;
     background: #C5CBE3;
-    overflow-y:auto
+    overflow-y:auto;
 }
 
 #messages {
     grid-area: messages;
     background: #EFE2BA;
     color:black;
-    overflow-y:auto
+    overflow-y:auto;
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 #users {
@@ -71,5 +73,8 @@
 .btn {
     font-size:30px;
     width:90%;
+}
+#logout {
+    width:98%;
 }
 
