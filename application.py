@@ -1,11 +1,19 @@
 '''**************************************************************
+* ToDo: rework session and user adressing
+* ToDo: Mark users active rom
+* Bug: creating a new room puts all others in the same room.
+**************************************************************'''
+
+
+'''**************************************************************
 * IMPORTS
 **************************************************************'''
 import os
 from collections import deque, namedtuple
 
-from flask import Flask, jsonify, render_template, request, redirect
+from flask import Flask, jsonify, render_template, request, redirect, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_session import Session;
 
 from textblob import TextBlob
 
@@ -128,7 +136,7 @@ def pull_rooms(data):
 
 @socketio.on("pull messages")
 def pull_messages(data):
-    emit("update messages", list(messages[data['room']]), broadcast=True)
+    emit("update messages", list(messages[data['room']]))
 
 @socketio.on("new message")
 def new_message(data):

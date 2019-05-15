@@ -144,11 +144,15 @@ onPageLoad(
                             const data = new FormData();
                             data.append('new_room', room_li.dataset.room_name);
                             data.append('displayName', displayName);
-                            currentRoom = room_li.dataset.room_name;
-                            localStorage.setItem('currentRoom', currentRoom);
+                            // currentRoom = room_li.dataset.room_name;
+                            // localStorage.setItem('currentRoom', currentRoom);
                             request.send(data);
                         }
-                        room_li.appendChild(document.createTextNode(`${room}` ));
+                        let suffix = ''
+                        if(room == localStorage.getItem('currentRoom')) {
+                            suffix = ' *'
+                        }
+                        room_li.appendChild(document.createTextNode(`${room}${suffix}` ));
                         qs('#room_list').appendChild(room_li);
                     })
                 });
