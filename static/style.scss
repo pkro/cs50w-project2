@@ -6,6 +6,9 @@
     grid-gap: 0.2em;
     height:430px;
     max-width:720px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    
     //background: rgb(175, 117, 10);
     @media only screen and (max-width: 600px) {
         grid-template-areas: 
@@ -45,6 +48,8 @@
     grid-area: rooms;
     background: #C5CBE3;
     overflow-y:auto;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
 }
 
 #messages {
@@ -59,7 +64,9 @@
 #users {
     grid-area: users;
     background: #C5CBE3;
-    overflow-y:auto
+    overflow-y:auto;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
 }
 
 #userinput_group {
@@ -86,9 +93,24 @@
 
 li {
     list-style: none;
+    cursor: pointer;
 }
 ul {
     list-style-position: inside; 
     padding-left: 01rem;
 }
 
+#room_list > li {
+    color:black;
+}
+
+.subhead {
+    background: rgb(211, 215, 231);
+    color: rgb(67, 103, 247);
+    
+    font-weight: bold;
+    //font-family: 'Teko', sans-serif;
+    font-size: 1.4rem;
+    align-content: center;
+    text-align: center;
+}

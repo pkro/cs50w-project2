@@ -7,10 +7,12 @@ from collections import deque, namedtuple
 from flask import Flask, jsonify, render_template, request, redirect
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
+from textblob import TextBlob
+
 import config
 from utils import cachebuster, get_timestamp, dbg
 
-from textblob import TextBlob
+
 
 '''**************************************************************
 * INIT

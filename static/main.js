@@ -70,7 +70,6 @@ onPageLoad(
                         qs('#button_send').click();
                     }
                 });
-                };
                 
                 qs('#button_translate').onclick = () => {
                     const message = qs('#userinput').value;
@@ -185,9 +184,6 @@ onPageLoad(
                 // we take care of that in pull rooms event as well
                 // socket.emit('pull users', {'room': currentRoom});
                 socket.emit('pull messages', {'room': currentRoom});
-                
-            });
-        }
-
+        });
     }
-);
+});

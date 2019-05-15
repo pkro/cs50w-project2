@@ -7,17 +7,20 @@
   -ms-grid-rows: 1fr 4fr 1fr;
       grid-template-rows: 1fr 4fr 1fr;
   grid-gap: 0.2em;
+  height: 430px;
+  max-width: 720px;
+  border-radius: 8px;
 }
 
 @media only screen and (max-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput   userinput  userinput";
+        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput_group   userinput_group  userinput_group";
   }
 }
 
 @media only screen and (min-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput   userinput";
+        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput_group   userinput_group";
   }
 }
 
@@ -26,47 +29,101 @@
 }
 
 #logotext {
-  font-size: 2em;
+  font-family: 'Teko', sans-serif;
+  font-size: 3em;
 }
 
 #menubar {
   grid-area: menubar;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 3fr 1fr 1fr 1fr;
-      grid-template-columns: 3fr 1fr 1fr 1fr;
-  background: #D79922;
-  color: #F13C20;
+  -ms-grid-columns: 2fr 2fr 1fr;
+      grid-template-columns: 2fr 2fr 1fr;
+  background: #F13C20;
+  color: white;
   font-weight: bold;
   font-size: 1.2em;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 #rooms {
   grid-area: rooms;
   background: #C5CBE3;
+  overflow-y: auto;
+  border-radius: 8px;
 }
 
 #messages {
   grid-area: messages;
   background: #EFE2BA;
   color: black;
+  overflow-y: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: column-reverse;
+          flex-direction: column-reverse;
 }
 
 #users {
   grid-area: users;
   background: #C5CBE3;
+  overflow-y: auto;
+  border-radius: 8px;
 }
 
-#userinput {
-  grid-area: userinput;
+#userinput_group {
+  grid-area: userinput_group;
   display: -ms-grid;
   display: grid;
   background: white;
-  -ms-grid-columns: 8fr 1fr 1fr;
-      grid-template-columns: 8fr 1fr 1fr;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-grid-columns: 6fr 1fr 1fr;
+      grid-template-columns: 6fr 1fr 1fr;
 }
 
 #messagetext {
   display: none;
+}
+
+.btn {
+  font-size: 30px;
+  width: 90%;
+}
+
+#logout {
+  width: 98%;
+  height: 98%;
+  color: white;
+}
+
+li {
+  list-style: none;
+  cursor: pointer;
+}
+
+ul {
+  list-style-position: inside;
+  padding-left: 01rem;
+}
+
+#room_list > li {
+  color: black;
+}
+
+.subhead {
+  background: #d3d7e7;
+  color: #4367f7;
+  font-weight: bold;
+  font-size: 1.4rem;
+  -ms-flex-line-pack: center;
+      align-content: center;
+  text-align: center;
 }
 /*# sourceMappingURL=style.css.map */
