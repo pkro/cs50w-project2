@@ -4,7 +4,9 @@
     grid-template-columns: 20% 60% 20%;
     grid-template-rows: 1fr 4fr 1fr;
     grid-gap: 0.2em;
-
+    height:430px;
+    max-width:720px;
+    //background: rgb(175, 117, 10);
     @media only screen and (max-width: 600px) {
         grid-template-areas: 
         "menubar    menubar     menubar"
@@ -22,30 +24,36 @@
     display: none;
 }
 #logotext {
-    font-size:2em;
+    font-family: 'Teko', sans-serif;
+    font-size:3em;
 }
 #menubar {
     // maybe better flexbox so rooms/users/logout break
     grid-area: menubar;
     display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr;
-    background: #D79922;
-    color:#F13C20;
+    grid-template-columns: 2fr 2fr 1fr;
+    background:#F13C20;
+    //color:#F13C20;
+    color:white;
     font-weight: bold;
     font-size:1.2em;
+    align-items: center;
 }
+
 
 #rooms {
     grid-area: rooms;
     background: #C5CBE3;
-    overflow-y:auto
+    overflow-y:auto;
 }
 
 #messages {
     grid-area: messages;
     background: #EFE2BA;
     color:black;
-    overflow-y:auto
+    overflow-y:auto;
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 #users {
@@ -58,11 +66,29 @@
     grid-area: userinput_group;
     display: grid;
     background: white;
-    
+    align-items: center;
     grid-template-columns: 6fr 1fr 1fr;
 }
 
 #messagetext {
     display:none;
+}
+
+.btn {
+    font-size:30px;
+    width:90%;
+}
+#logout {
+    width:98%;
+    height:98%;
+    color:white;
+}
+
+li {
+    list-style: none;
+}
+ul {
+    list-style-position: inside; 
+    padding-left: 01rem;
 }
 

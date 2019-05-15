@@ -1,2 +1,13 @@
-Flask
-Flask-SocketIO
+Click==7.0
+Flask==1.0.2
+Flask-SocketIO==3.3.2
+itsdangerous==1.1.0
+Jinja2==2.10.1
+MarkupSafe==1.1.1
+nltk==3.4.1
+pkg-resources==0.0.0
+python-engineio==3.5.1
+python-socketio==3.1.2
+six==1.12.0
+textblob==0.15.3
+Werkzeug==0.15.2

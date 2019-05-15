@@ -2,19 +2,14 @@
 
 {% block content %}
 <div class="wrapper">
-        <!--- ToDo: make clapsable navbar -->
         <div id="menubar">
             <div id="apptitle">
                 <div id="logotext">Chat thing</div>
             </div>
-            <!--- toggle roomlist display -->
-            <div id="showrooms">Rooms</div>
-            <!--- toggle userlist display -->
-            <div id="usersmenu">Users</div>
-            <div id="logout">
-                <a name="logout" id="logout" class="btn btn-primary" href="#" role="button">Logout</a>
-            </div>
             <div id="displayNameHead">Name</div>
+            <div id="logout">
+                <a name="logout" id="logout" class="btn" href="#" role="button">Logout</a>
+            </div>
         </div>
     
         <div id="rooms">
@@ -35,10 +30,10 @@
                     <textarea class="form-control" name="userinput" id="userinput" rows="2" placeholder="CTRL-Enter to send"></textarea>
             </div>
             <div id="send">
-                <a name="button_send" id="button_send" class="btn btn-primary" href="#" role="button"><i class="far fa-paper-plane"></i></a>
+                <a name="button_send" id="button_send" class="btn" href="#" role="button" title="send message"><i class="fas fa-satellite-dish"></i></i></a>
             </div>
             <div id="foto">
-                <a name="button_pic" id="button_pic" class="btn btn-primary" href="#" role="button"><i class="fas fa-image"></i></a>
+                <a name="button_translate" id="button_translate" class="btn" href="#" role="button" title="Translate message to english"><i class="fas fa-globe"></i></a>
             </div>
         </div>
             

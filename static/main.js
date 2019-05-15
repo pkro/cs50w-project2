@@ -70,6 +70,24 @@ onPageLoad(
                         qs('#button_send').click();
                     }
                 });
+                };
+                
+                qs('#button_translate').onclick = () => {
+                    const message = qs('#userinput').value;
+                    const request = new XMLHttpRequest();
+                    request.onload = () => {
+                        const data = JSON.parse(request.responseText);
+                        cl(data)
+                        if(data.translation) {
+                            qs('#userinput').value = data.translation;
+                        }
+                    }
+                    request.open('POST', '/translate');
+                    const data = new FormData();
+                    data.append('message', message);
+                    request.send(data);
+                };
+
                 // logout user
                 qs('#logout').onclick = () => {
                     const request = new XMLHttpRequest();

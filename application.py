@@ -10,8 +10,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 import config
 from utils import cachebuster, get_timestamp, dbg
 
-# ToDo: Complete rewrite to use socket rooms and users I guess
-
+from textblob import TextBlob
 
 '''**************************************************************
 * INIT
@@ -101,6 +100,13 @@ def change_room():
 
     socketio.emit("update messages", list(messages[new_room]), broadcast=True)
     return jsonify( {"success": True} )
+@app.route('/translate', methods=['POST'])
+def translate():
+    text = request.form.get('message')
+    blob = TextBlob(text)
+    text_en = blob.translate(to='en')
+
+    return jsonify( {"translation": str(text_en) } )
 
 '''**************************************************************
 * SOCKETS
