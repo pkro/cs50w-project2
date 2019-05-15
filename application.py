@@ -13,7 +13,6 @@ import config
 from utils import cachebuster, get_timestamp, dbg
 
 
-
 '''**************************************************************
 * INIT
 **************************************************************'''
@@ -21,7 +20,6 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = config.secret_key
 socketio = SocketIO(app)
 
-# using set to just put user in existing room if he tries to create an existing name
 reserved_user = 'System'
 users = [reserved_user]
 reserved_room = "Lobby"
@@ -29,7 +27,6 @@ rooms_users = {reserved_room:[reserved_user]}
 
 Message = namedtuple('Message', ['timestamp', 'user', 'message'])
 # Using deque of size 100, entries "older than" 100 will be purged
-# index 0 is always the latest message
 messages = dict()
 messages[reserved_room] = deque([], 100)
 initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
@@ -55,7 +52,7 @@ def displayName_exists():
     displayName = request.form.get('displayName')
     if displayName in users:
         return jsonify( {"displayName_exists": True } )
-    
+
     users.append(displayName)
     return jsonify( {"displayName_exists": False } )
 
@@ -110,6 +107,7 @@ def translate():
 
     return jsonify( {"translation": str(text_en) } )
 
+
 '''**************************************************************
 * SOCKETS
 **************************************************************'''
@@ -130,7 +128,6 @@ def pull_rooms(data):
 
 @socketio.on("pull messages")
 def pull_messages(data):
-    messages_response = dict()
     emit("update messages", list(messages[data['room']]), broadcast=True)
 
 @socketio.on("new message")

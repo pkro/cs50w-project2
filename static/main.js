@@ -52,7 +52,7 @@ onPageLoad(
             // otherwise room is not found and mayhem
             socket.on('disconnect', function () {
                 socket.emit('disconnected');
-                localStorage.removeItem('currentRoom')
+                localStorage.removeItem('currentRoom');
             });
 
             socket.on('connect', () => {
@@ -70,7 +70,7 @@ onPageLoad(
                         qs('#button_send').click();
                     }
                 });
-                
+
                 qs('#button_translate').onclick = () => {
                     const message = qs('#userinput').value;
                     const request = new XMLHttpRequest();
@@ -106,7 +106,7 @@ onPageLoad(
                     data.append('room', currentRoom);
                     request.send(data);
                 }
-                
+
                 // Create new room by typing in new name + enter
                 var create_room = qs("#create_room");
                 create_room.addEventListener("keyup", function(event) {
@@ -130,7 +130,7 @@ onPageLoad(
 
                 /********************************************************************
                 * Socket listeners
-                *********************************************************************/                
+                *********************************************************************/
                 socket.on('update rooms', data => {
                     qs('#room_list').innerHTML = "";
                     data.forEach( room => {
@@ -152,7 +152,7 @@ onPageLoad(
                         qs('#room_list').appendChild(room_li);
                     })
                 });
-                
+
                 socket.on('update messages', data => {
                     qs('#messages_list').innerHTML = "";
                     data.forEach( message => {
@@ -171,7 +171,7 @@ onPageLoad(
                         qs('#users_list').appendChild(user_li)
                     })
                 });
-                
+
                 /********************************************************************
                 * Init - pull existing messages and rooms
                 *********************************************************************/
