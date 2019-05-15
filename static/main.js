@@ -14,12 +14,12 @@ onPageLoad(
             var input = document.getElementById("myInput");
             // Enter should suffice to send login name
             var input = qs("#displayName");
-                input.addEventListener("keyup", function(event) {
-                    // Number 13 is the "Enter" key on the keyboard
-                    if (event.keyCode === 13) {
-                        event.preventDefault();
-                        qs("#submit_dp").click();
-                }
+            input.addEventListener("keyup", function(event) {
+                // Number 13 is the "Enter" key on the keyboard
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    qs("#submit_dp").click();
+            }
             });
 
             qs('#submit_dp').onclick = () => {
@@ -63,8 +63,13 @@ onPageLoad(
                     const message = qs('#userinput').value;
                     qs('#userinput').value = '';
                     socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
-                };
-                
+                }
+                // ctrl+enter sends input (ctrl is necessary because field is multiline)
+                qs('#userinput').addEventListener("keyup", event => {
+                    if(event.ctrlKey && event.keyCode == 13) {
+                        qs('#button_send').click();
+                    }
+                });
                 // logout user
                 qs('#logout').onclick = () => {
                     const request = new XMLHttpRequest();
