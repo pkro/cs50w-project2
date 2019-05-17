@@ -19,7 +19,7 @@ Minor additions or implementation details:
 
 This app is in no way secure, consistent or practical nor does it use the room / user logic built into socketio and broadcasts all messages from all rooms to all users on updates.
 
-Youtube demonstrtion:
+Youtube demonstration:
 
 
 Files:

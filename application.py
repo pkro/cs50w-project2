@@ -94,7 +94,13 @@ def create_room():
     loc_rooms[1:] = sorted(loc_rooms[1:])
     # "only socket handlers have the socketio context necessary to call the plain emit()"
     socketio.emit("update rooms", loc_rooms, broadcast=True)
-    socketio.emit("update messages", list(messages[new_room]), broadcast=True)
+
+    current_room = str(new_room)
+    data_out =  {
+            'room': current_room,
+            'messages': list(messages[current_room])
+        }
+    socketio.emit("update messages", data_out, broadcast=True)
     return jsonify( {"success": True} )
 
 @app.route("/change_room", methods=['POST'])
@@ -107,6 +113,7 @@ def change_room():
 
     socketio.emit("update messages", list(messages[new_room]), broadcast=True)
     return jsonify( {"success": True} )
+
 @app.route('/translate', methods=['POST'])
 def translate():
     text = request.form.get('message')
@@ -136,7 +143,12 @@ def pull_rooms(data):
 
 @socketio.on("pull messages")
 def pull_messages(data):
-    emit("update messages", list(messages[data['room']]))
+    current_room = data["room"]
+    data_out =  {
+            'room': current_room,
+            'messages': list(messages[current_room])
+        }
+    emit("update messages", data_out)
 
 @socketio.on("new message")
 def new_message(data):
@@ -152,7 +164,11 @@ def new_message(data):
                                             displayName,
                                             message))
         # need to convert deque to jsoncompatible data structure (list)
-        emit("update messages", list(messages[current_room]), broadcast=True)
+        data_out = jsonify( {
+            'room': current_room,
+            'messages': list(messages[current_room])
+        })
+        emit("update messages", data_out, broadcast=True)
 
 if __name__ == '__main__':
     app.run()
