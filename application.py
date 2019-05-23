@@ -26,17 +26,28 @@ from utils import cachebuster, get_timestamp, dbg
 **************************************************************'''
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.secret_key
+
+# Configure session
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+#  init socketio
 socketio = SocketIO(app)
 
+# init initial room
 reserved_user = 'System'
 users = [reserved_user]
 reserved_room = "Lobby"
 rooms_users = {reserved_room:[reserved_user]}
 
+# message structure 
 Message = namedtuple('Message', ['timestamp', 'user', 'message'])
-# Using deque of size 100, entries "older than" 100 will be purged
+
+# key = rooms, value = deque of messages
 messages = dict()
 messages[reserved_room] = deque([], 100)
+
 initial_message = Message(get_timestamp(), 'System', 'Welcome to the lobby')
 messages[reserved_room].append(initial_message)
 
@@ -55,24 +66,24 @@ def login():
 '''**************************************************************
 * WEB SERVICE ROUTES
 **************************************************************'''
-@app.route("/displayName_exists", methods=['POST'])
-def displayName_exists():
-    displayName = request.form.get('displayName')
-    if displayName in users:
-        return jsonify( {"displayName_exists": True } )
+@app.route("/user_exists", methods=['POST'])
+def user_exists():
+    user = request.form.get('user')
+    if user in users:
+        return jsonify( {"user_exists": True } )
 
-    users.append(displayName)
-    return jsonify( {"displayName_exists": False } )
+    users.append(user)
+    return jsonify( {"user_exists": False } )
 
 # Allow user to logout / delete his display name (but not his messages)
-@app.route("/delete_displayName", methods=['POST'])
-def delete_displayName():
-    displayName = request.form.get('displayName')
+@app.route("/delete_user", methods=['POST'])
+def delete_user():
+    user = request.form.get('user')
     room = request.form.get('room')
-    if displayName != reserved_user:
+    if user != reserved_user:
         try:
-            users.remove(displayName)
-            rooms_users[room].remove(displayName)
+            users.remove(user)
+            rooms_users[room].remove(user)
         except Exception as e:
             dbg(e)
 
@@ -81,9 +92,9 @@ def delete_displayName():
 @app.route("/create_room", methods=['POST'])
 def create_room():
     new_room = request.form.get('new_room')
-    displayName = request.form.get('displayName')
+    user = request.form.get('user')
     if new_room not in rooms_users.keys():
-        rooms_users[new_room] = [reserved_user, displayName]
+        rooms_users[new_room] = [reserved_user, user]
         messages[new_room] = deque([], 100)
         message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}"')
         messages[new_room].append(message)
@@ -106,7 +117,7 @@ def create_room():
 @app.route("/change_room", methods=['POST'])
 def change_room():
     new_room = request.form.get('new_room')
-    displayName = request.form.get('displayName')
+    user = request.form.get('user')
     if new_room not in rooms_users.keys():
         # Something went wrong, browser data out of sync with app data?
         return jsonify( {"success": False} )
@@ -128,16 +139,16 @@ def translate():
 **************************************************************'''
 @socketio.on("pull rooms")
 def pull_rooms(data):
-    displayName = data["displayName"]
+    user = data["user"]
     current_room = data["room"]
     loc_rooms = list(rooms_users.keys())
     # sort everything after second item in place
     loc_rooms[1:] = sorted(loc_rooms[1:])
     emit("update rooms", loc_rooms, broadcast=True)
-    if displayName not in rooms_users[current_room]:
-        rooms_users[current_room].append(displayName)
-    if displayName not in users:
-        users.append(displayName)
+    if user not in rooms_users[current_room]:
+        rooms_users[current_room].append(user)
+    if user not in users:
+        users.append(user)
     emit("update users", list(rooms_users[current_room]), broadcast=True)
 
 
@@ -152,16 +163,16 @@ def pull_messages(data):
 
 @socketio.on("new message")
 def new_message(data):
-    displayName = data["displayName"]
+    user = data["user"]
     current_room = data["room"]
     message = data["message"]
     if current_room in rooms_users.keys():
-        if displayName not in rooms_users[current_room]:
-            rooms_users[current_room].append(displayName)
-        if displayName not in users:
-            users.append(displayName)
+        if user not in rooms_users[current_room]:
+            rooms_users[current_room].append(user)
+        if user not in users:
+            users.append(user)
         messages[current_room].append(Message(  get_timestamp(),
-                                            displayName,
+                                            user,
                                             message))
         # need to convert deque to jsoncompatible data structure (list)
         data_out =  {
