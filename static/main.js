@@ -1,9 +1,9 @@
 onPageLoad(
     () => {
-        // Check if user already has a displayName
-        displayName = localStorage.getItem('displayName');
-        if( ! displayName) {
-            if( ! qs('#displayName') ) {
+        // Check if user already has a user
+        user = localStorage.getItem('user');
+        if( ! user) {
+            if( ! qs('#user') ) {
                 document.location.replace('/login')
             }
         }
@@ -13,7 +13,7 @@ onPageLoad(
         if(qs('#submit_dp')) {
             var input = document.getElementById("myInput");
             // Enter should suffice to send login name
-            var input = qs("#displayName");
+            var input = qs("#user");
             input.addEventListener("keyup", function(event) {
                 // Number 13 is the "Enter" key on the keyboard
                 if (event.keyCode === 13) {
@@ -23,24 +23,24 @@ onPageLoad(
             });
 
             qs('#submit_dp').onclick = () => {
-                displayName = qs('#displayName').value;
+                user = qs('#user').value;
 
                 const request = new XMLHttpRequest();
-                request.open('POST', '/displayName_exists')
+                request.open('POST', '/user_exists')
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
-                    if(data.displayName_exists) {
+                    if(data.user_exists) {
                         qs('.alert').style.display = "block";
                         qs('.alert').innerText =  "Display name already exists"
                     } else {
-                        localStorage.setItem('displayName', displayName);
+                        localStorage.setItem('user', user);
                         document.location.replace('/')
                     }
                 }
 
                 const data = new FormData();
-                data.append('displayName', displayName);
+                data.append('user', user);
                 data.append('room', 'Lobby');
                 request.send(data);
             }
@@ -52,7 +52,7 @@ onPageLoad(
              /********************************************************************
             * Init - pull existing messages and rooms
             *********************************************************************/
-           qs('#displayNameHead').innerText = displayName;
+           qs('#userHead').innerText = user;
            var currentRoom = localStorage.getItem('currentRoom');
            if( ! currentRoom ) {
                currentRoom = 'Lobby'
@@ -60,7 +60,7 @@ onPageLoad(
            }
 
            setInterval( () => {
-            socket.emit('pull rooms', {'displayName': displayName, 'room': currentRoom});
+            socket.emit('pull rooms', {'user': user, 'room': currentRoom});
             socket.emit('pull messages', {'room': currentRoom});
            }, 1000);
            
@@ -71,7 +71,7 @@ onPageLoad(
             qs('#button_send').onclick = () => {
                 const message = qs('#userinput').value;
                 qs('#userinput').value = '';
-                socket.emit('new message', {'message': message, 'room': currentRoom, 'displayName': displayName});
+                socket.emit('new message', {'message': message, 'room': currentRoom, 'user': user});
             }
             // ctrl+enter sends input (ctrl is necessary because field is multiline)
             qs('#userinput').addEventListener("keyup", event => {
@@ -98,19 +98,19 @@ onPageLoad(
             // logout user
             qs('#logout').onclick = () => {
                 const request = new XMLHttpRequest();
-                request.open('POST', '/delete_displayName')
+                request.open('POST', '/delete_user')
 
                 request.onload = () => {
                     const data = JSON.parse(request.responseText);
                     if(data.success) {
-                        localStorage.removeItem('displayName')
+                        localStorage.removeItem('user')
                         localStorage.removeItem('currentRoom')
                         document.location.replace('/login')
                     }
                 }
 
                 const data = new FormData();
-                data.append('displayName', displayName);
+                data.append('user', user);
                 data.append('room', currentRoom);
                 request.send(data);
             }
@@ -124,7 +124,7 @@ onPageLoad(
                     request.open('POST', '/create_room')
                     const data = new FormData();
                     data.append('new_room', create_room.value);
-                    data.append('displayName', displayName);
+                    data.append('user', user);
                     currentRoom = create_room.value;
                     localStorage.setItem('currentRoom', currentRoom);
                     create_room.value = "";
@@ -147,7 +147,7 @@ onPageLoad(
                         request.open('POST', '/change_room')
                         const data = new FormData();
                         data.append('new_room', room_li.dataset.room_name);
-                        data.append('displayName', displayName);
+                        data.append('user', user);
                         request.send(data);
                     }
                     let suffix = ''
