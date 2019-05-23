@@ -59,8 +59,11 @@ onPageLoad(
                localStorage.setItem('currentRoom', currentRoom)
            }
 
-           socket.emit('pull rooms', {'displayName': displayName, 'room': currentRoom});
-           socket.emit('pull messages', {'room': currentRoom});
+           setInterval( () => {
+            socket.emit('pull rooms', {'displayName': displayName, 'room': currentRoom});
+            socket.emit('pull messages', {'room': currentRoom});
+           }, 1000);
+           
 
             /********************************************************************
             * Event listeners for user controls

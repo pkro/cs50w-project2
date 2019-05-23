@@ -164,10 +164,10 @@ def new_message(data):
                                             displayName,
                                             message))
         # need to convert deque to jsoncompatible data structure (list)
-        data_out = jsonify( {
+        data_out =  {
             'room': current_room,
             'messages': list(messages[current_room])
-        })
+        }
         emit("update messages", data_out, broadcast=True)
 
 if __name__ == '__main__':
