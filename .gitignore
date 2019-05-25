@@ -1,3 +1,6 @@
+flask_session/
+settings.json
+*.css.map
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -97,3 +100,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+static/style.css.map

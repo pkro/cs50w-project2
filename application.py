@@ -54,14 +54,18 @@ messages[reserved_room].append(initial_message)
 '''**************************************************************
 * REGULAR ROUTES
 **************************************************************'''
-@app.route("/")
+@app.route("/", methods=['POST', 'GET'])
 def index():
+    if request.method == 'POST':
+        session['user'] = request.form.get("user")
+        dbg('user' + session.get('user'))
+
+    if not session.get('user'):
+        dbg(session.get('user'))
+        return render_template("login.html", cachebuster=cachebuster())
+    dbg('user' + session.get('user'))
+
     return render_template('index.html', cachebuster=cachebuster())
-
-@app.route("/login")
-def login():
-    return render_template("login.html", cachebuster=cachebuster())
-
 
 '''**************************************************************
 * WEB SERVICE ROUTES
@@ -72,7 +76,6 @@ def user_exists():
     if user in users:
         return jsonify( {"user_exists": True } )
 
-    users.append(user)
     return jsonify( {"user_exists": False } )
 
 # Allow user to logout / delete his display name (but not his messages)
@@ -82,8 +85,10 @@ def delete_user():
     room = request.form.get('room')
     if user != reserved_user:
         try:
+            session.clear()
             users.remove(user)
             rooms_users[room].remove(user)
+            
         except Exception as e:
             dbg(e)
 

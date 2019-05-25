@@ -1,6 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+<script src="{{ url_for('static', filename='main.js') }}?cachebuster={{cachebuster}}"></script>
+
 <div class="wrapper">
         <div id="menubar">
             <div id="apptitle">
