@@ -22,7 +22,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = config.secret_key
 
 # Configure session
-app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_PERMANENT"] = True
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
@@ -56,6 +56,7 @@ def index():
         session['room'] = reserved_room
         if session['user'] not in rooms_users[reserved_room]:
             rooms_users[reserved_room].append(session['user'])
+            socketio.emit("update users", broadcast=True)
 
     if not session.get('user'):
         return render_template("login.html", cachebuster=cachebuster())
