@@ -17,8 +17,6 @@ Minor additions or implementation details:
 - Room and user list vanish for resolutions < 600px width
 - When trying to create a channel whose name already exists, the user is put in that channel wihout further ado.
 
-This app is in no way secure, consistent or practical nor does it use the room / user logic built into socketio and broadcasts all messages from all rooms to all users on updates.
-
 Youtube demonstration:
 
 

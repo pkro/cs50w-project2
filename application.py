@@ -1,15 +1,9 @@
 '''**************************************************************
-* ToDo: rework session and user adressing
-* ToDo: Mark users active rom
-* Bug: creating a new room puts all others in the same room.
-**************************************************************'''
-
-
-'''**************************************************************
 * IMPORTS
 **************************************************************'''
 import os
 from collections import deque, namedtuple
+from contextlib import suppress
 
 from flask import Flask, jsonify, render_template, request, redirect, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -56,14 +50,15 @@ messages[reserved_room].append(initial_message)
 **************************************************************'''
 @app.route("/", methods=['POST', 'GET'])
 def index():
+    # if it's posted, it's a fresh user with default room
     if request.method == 'POST':
         session['user'] = request.form.get("user")
-        dbg('user' + session.get('user'))
+        session['room'] = reserved_room
+        if session['user'] not in rooms_users[reserved_room]:
+            rooms_users[reserved_room].append(session['user'])
 
     if not session.get('user'):
-        dbg(session.get('user'))
         return render_template("login.html", cachebuster=cachebuster())
-    dbg('user' + session.get('user'))
 
     return render_template('index.html', cachebuster=cachebuster())
 
@@ -72,63 +67,58 @@ def index():
 **************************************************************'''
 @app.route("/user_exists", methods=['POST'])
 def user_exists():
-    user = request.form.get('user')
-    if user in users:
-        return jsonify( {"user_exists": True } )
-
-    return jsonify( {"user_exists": False } )
+    return jsonify( {"user_exists": request.form.get('user') in users } )
 
 # Allow user to logout / delete his display name (but not his messages)
-@app.route("/delete_user", methods=['POST'])
+@app.route("/logout", methods=['GET'])
 def delete_user():
-    user = request.form.get('user')
-    room = request.form.get('room')
-    if user != reserved_user:
-        try:
-            session.clear()
-            users.remove(user)
-            rooms_users[room].remove(user)
-            
-        except Exception as e:
-            dbg(e)
+    with suppress(ValueError):
+        users.remove(session["user"])
+        rooms_users[session["room"]].remove(session["user"])
+
+    session.clear()
 
     return jsonify( {"success": True} )
 
 @app.route("/create_room", methods=['POST'])
 def create_room():
-    new_room = request.form.get('new_room')
-    user = request.form.get('user')
-    if new_room not in rooms_users.keys():
-        rooms_users[new_room] = [reserved_user, user]
-        messages[new_room] = deque([], 100)
-        message = Message(get_timestamp(), 'System', f'Welcome to "{new_room}"')
-        messages[new_room].append(message)
+    room = request.form.get('room')
+    user = session['user']
+    rooms_users[session['room']].remove(user)
+    # if room exists just skip creation and put user in room
+    session['room'] = room
 
-    # using list explicitly creates a copy from the "set like" .keys() object
+    if room not in rooms_users.keys():
+        rooms_users[room] = [reserved_user, user]
+        messages[room] = deque([], 100)
+        message = Message(get_timestamp(), 'System', f'Welcome to "{room}"')
+        messages[room].append(message)
+    elif user not in rooms_users[room]:
+        rooms_users[room].append(user)
+
+    socketio.emit("update messages", broadcast=True)
+    socketio.emit("update rooms", broadcast=True)
+    socketio.emit("update users", broadcast=True)
+
+    return jsonify( {"success": True} )
+
+@app.route("/pull_rooms", methods=['GET'])
+def pull_rooms():
     loc_rooms = list(rooms_users.keys())
-    # Keep Lobby first, sort everything else
-    loc_rooms[1:] = sorted(loc_rooms[1:])
-    # "only socket handlers have the socketio context necessary to call the plain emit()"
-    socketio.emit("update rooms", loc_rooms, broadcast=True)
+    # sort everything after second item in place
+    if len(loc_rooms) > 1:
+         loc_rooms[1:] = sorted(loc_rooms[1:])
+    return jsonify( loc_rooms )
 
-    current_room = str(new_room)
-    data_out =  {
-            'room': current_room,
-            'messages': list(messages[current_room])
-        }
-    socketio.emit("update messages", data_out, broadcast=True)
-    return jsonify( {"success": True} )
+@app.route("/pull_messages", methods=['GET'])
+def pull_messages():
+    current_room = session["room"]
+    return jsonify(list(messages[current_room]))
 
-@app.route("/change_room", methods=['POST'])
-def change_room():
-    new_room = request.form.get('new_room')
-    user = request.form.get('user')
-    if new_room not in rooms_users.keys():
-        # Something went wrong, browser data out of sync with app data?
-        return jsonify( {"success": False} )
-
-    socketio.emit("update messages", list(messages[new_room]), broadcast=True)
-    return jsonify( {"success": True} )
+@app.route("/pull_users", methods=['GET'])
+def pull_users():
+    current_room = session["room"]
+    return jsonify( sorted(rooms_users[current_room]) )
 
 @app.route('/translate', methods=['POST'])
 def translate():
@@ -138,53 +128,18 @@ def translate():
 
     return jsonify( {"translation": str(text_en) } )
 
-
-'''**************************************************************
-* SOCKETS
-**************************************************************'''
-@socketio.on("pull rooms")
-def pull_rooms(data):
-    user = data["user"]
-    current_room = data["room"]
-    loc_rooms = list(rooms_users.keys())
-    # sort everything after second item in place
-    loc_rooms[1:] = sorted(loc_rooms[1:])
-    emit("update rooms", loc_rooms, broadcast=True)
-    if user not in rooms_users[current_room]:
-        rooms_users[current_room].append(user)
-    if user not in users:
-        users.append(user)
-    emit("update users", list(rooms_users[current_room]), broadcast=True)
-
-
-@socketio.on("pull messages")
-def pull_messages(data):
-    current_room = data["room"]
-    data_out =  {
-            'room': current_room,
-            'messages': list(messages[current_room])
-        }
-    emit("update messages", data_out)
-
-@socketio.on("new message")
-def new_message(data):
-    user = data["user"]
-    current_room = data["room"]
-    message = data["message"]
-    if current_room in rooms_users.keys():
-        if user not in rooms_users[current_room]:
-            rooms_users[current_room].append(user)
-        if user not in users:
-            users.append(user)
-        messages[current_room].append(Message(  get_timestamp(),
+@app.route("/send_message", methods=['POST'])
+def new_message():
+    message = request.form.get('message')
+    user = session["user"]
+    current_room = session["room"]
+    
+    messages[current_room].append(Message(  get_timestamp(),
                                             user,
                                             message))
-        # need to convert deque to jsoncompatible data structure (list)
-        data_out =  {
-            'room': current_room,
-            'messages': list(messages[current_room])
-        }
-        emit("update messages", data_out, broadcast=True)
+
+    socketio.emit("update messages", broadcast=True)
+    return jsonify( {"success": True} )
 
 if __name__ == '__main__':
     app.run()

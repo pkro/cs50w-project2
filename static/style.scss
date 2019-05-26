@@ -99,13 +99,20 @@ li {
 }
 ul {
     list-style-position: inside; 
-    padding-left: 01rem;
+    padding-left: 0.4rem;
 }
 
 #room_list > li {
     color:black;
 }
 
+.selected {
+    background-color: rgb(55, 94, 248);
+    color: white !important;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding-left: 0.6rem;
+}
 .subhead {
     background: rgb(211, 215, 231);
     color: rgb(67, 103, 247);

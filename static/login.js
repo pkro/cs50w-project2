@@ -30,7 +30,7 @@ onPageLoad(
                     qs('.alert').innerText = "Display name already exists"
                 } else {
                     localStorage.setItem('user', user);
-                    cl('x'+localStorage.getItem('user'));
+                    localStorage.setItem('room', 'Lobby');
                     document.loginform.submit();
                 }
             }

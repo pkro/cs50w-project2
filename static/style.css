@@ -14,13 +14,13 @@
 
 @media only screen and (max-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput_group   userinput_group  userinput_group";
+        grid-template-areas: "menubar    menubar     menubar" "messages   messages    messages" "userinput_group   userinput_group  userinput_group";
   }
 }
 
 @media only screen and (min-width: 600px) {
   .wrapper {
-        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput_group   userinput_group";
+        grid-template-areas: "menubar    menubar     menubar" "rooms      messages    users" "rooms      userinput_group   userinput_group";
   }
 }
 
@@ -46,6 +46,7 @@
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  border-radius: 8px;
 }
 
 #rooms {
@@ -110,11 +111,18 @@ li {
 
 ul {
   list-style-position: inside;
-  padding-left: 01rem;
+  padding-left: 0.4rem;
 }
 
 #room_list > li {
   color: black;
+}
+
+.selected {
+  background-color: #375ef8;
+  color: white !important;
+  border-radius: 4px;
+  padding-left: 0.6rem;
 }
 
 .subhead {
