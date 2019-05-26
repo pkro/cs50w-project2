@@ -18,7 +18,7 @@ Minor additions or implementation details:
 - When trying to create a channel whose name already exists, the user is put in that channel wihout further ado.
 
 Youtube demonstration:
-
+https://youtu.be/dyZYT9xiBg0
 
 Files:
 .
